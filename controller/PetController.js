@@ -42,7 +42,7 @@ module.exports = class PetController {
     });
 
     images.map((image) => {
-      pet.images.push(image.filename);
+      pet.images.push(image.location);
     });
 
     try {
@@ -138,7 +138,7 @@ module.exports = class PetController {
     
 
     if (images && images.length > 0) {
-      updatedData.images = images.map((image) => image.filename);
+      updatedData.images = images.map((image) => image.location);
     } else {
       updatedData.images = pet.images; // Mantém as imagens existentes
     }
