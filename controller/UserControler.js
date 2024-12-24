@@ -10,6 +10,10 @@ function validarEmail(email) {
   const dominiosPermitidos = /@(gmail\.com|outlook\.com)$/;
   return dominiosPermitidos.test(email);
 }
+function validarTelefone(telefone) {
+  const regex = /^21( ?\d{5} ?\d{4}| ?\d{4}-?\d{4}| ?\d{5}-\d{4})$/;
+  return regex.test(telefone);
+}
 
 module.exports = class UserController {
   static async register(req, res) {
@@ -32,6 +36,10 @@ module.exports = class UserController {
   }
     if (!validarEmail(email)) {
       return res.status(422).json({ error: "Email inválido" });
+    }
+    //check if phone is valid
+    if (!validarTelefone(phone)) {
+      return res.status(422).json({ error: "Telefone inválido. O formato deve ser: 21 XXXXX-XXXX" });
     }
     //check if user exists
     const userExists = await User.findOne({ email: email });
@@ -139,6 +147,9 @@ module.exports = class UserController {
 
     if (!validarEmail(email)) {
       return res.status(400).json({ error: "Email inválido" });
+    }
+    if (!validarTelefone(phone)) {
+      return res.status(422).json({ error: "Telefone inválido. O formato deve ser: 21 XXXXX-XXXX" });
     }
 
     if ((password && !confirmPassword) || (!password && confirmPassword)) {
