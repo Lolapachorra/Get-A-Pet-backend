@@ -114,7 +114,7 @@ module.exports = class UserController {
     const user = await getUserByToken(token);
     let image
     if (req.file) {
-    image = user.image = req.file.filename;
+    image = user.image = req.file.location;
     }
 
     // Check if user exists before proceeding
