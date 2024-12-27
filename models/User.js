@@ -11,6 +11,8 @@ const User = mongoose.model(
       password: { type: "string", required: true },
       image: { type: "string" },
       phone: { type: "string", required: true },
+      //is adimin
+      isAdmin: { type: Boolean, default: false },
     },
     { timestamps: true }
   )

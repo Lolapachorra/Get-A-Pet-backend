@@ -20,8 +20,10 @@ app.use(express.static("public"));
 //routes
 const UserRoutes = require("./routes/userRoutes.js");
 const PetRoutes =  require("./routes/PetRoutes.js");
+const AdminRoutes = require('./routes/adminRoutes.js')
 app.use("/users", UserRoutes);
 app.use('/pets', PetRoutes)
+app.use('/admin', AdminRoutes);
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });

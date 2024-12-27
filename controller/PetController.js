@@ -17,6 +17,17 @@ module.exports = class PetController {
       return;
     }
 
+    const weightNum = Number(weight);
+
+    if (isNaN(weightNum)) {
+      return res.status(422).json({ message: "Peso precisa ser um número!" });
+    }
+    //verify if the number has a symbol like + or -
+    if (weight.includes("+") || weight.includes("-")) {
+      return res
+        .status(422)
+        .json({ message: "Peso não pode conter símbolos (+ ou -)!" });
+    }
     if (!images || images.length === 0) {
       res.status(422).json({ message: "A imagem é obrigatória!" });
       return;
@@ -65,7 +76,7 @@ module.exports = class PetController {
     const token = getToken(req);
     const user = await getUserByToken(token);
     const pets = await Pet.find({ "user._id": user._id }).sort("-createdAt");
-   // console.log(pets);
+    // console.log(pets);
     res.status(200).json({ pets: pets });
   }
   static async getUserAdoptions(req, res) {
@@ -127,47 +138,62 @@ module.exports = class PetController {
     if (pet.user._id.toString() !== user._id.toString()) {
       return res.status(422).json({ error: "Você não pode editar este pet" });
     }
-    if (!name || !age || !weight || !color ){
-     return res.status(422).json({ message: "Todos os dados são obrigatórios!" });
+    if (!name || !age || !weight || !color) {
+      return res
+        .status(422)
+        .json({ message: "Todos os dados são obrigatórios!" });
     }
+    const weightNum = Number(weight);
+
+    if (isNaN(weightNum)) {
+      return res.status(422).json({ message: "Peso precisa ser um número!" });
+    }
+
     updatedData.name = name;
     updatedData.age = age;
     updatedData.weight = weight;
     updatedData.color = color;
-    
-    
 
     if (images && images.length > 0) {
       updatedData.images = images.map((image) => image.location);
     } else {
       updatedData.images = pet.images; // Mantém as imagens existentes
     }
-   // console.log(updatedData);
-    const updatedPet = await Pet.findByIdAndUpdate(id, updatedData, {new: true});
+    // console.log(updatedData);
+    const updatedPet = await Pet.findByIdAndUpdate(id, updatedData, {
+      new: true,
+    });
     console.log(updatedPet);
     res.status(200).json({ message: "Pet editado com sucesso", updatedPet });
-   
   }
 
-  static async Schedule(req,res){
+  static async Schedule(req, res) {
     const id = req.params.id;
     //check if Id is valid
     if (!ObjectId.isValid(id)) {
       return res.status(400).json({ error: "ID inválido" });
     }
-   //check if pet exists
+    //check if pet exists
     const pet = await Pet.findById(id);
     if (!pet) return res.status(404).json({ error: "Pet não encontrado" });
     //check if user registered the pet
     const token = getToken(req);
     const user = await getUserByToken(token);
     if (pet.user._id.equals(user._id)) {
-      return res.status(422).json({ error: "Você não pode agendar um atendimento com seu proprio pet" });
+      return res
+        .status(422)
+        .json({
+          error: "Você não pode agendar um atendimento com seu proprio pet",
+        });
     }
     //check if the user has already scheduled a visit
-    if(pet.adopter){
-      if(pet.adopter._id.equals(user._id)){
-        return res.status(422).json({ error: "Você já possui um atendimento agendado com este pet" });
+    if (pet.adopter) {
+      if (pet.adopter._id.equals(user._id)) {
+        return res
+          .status(422)
+          .json({
+            error: "Você já possui um atendimento agendado com este pet",
+          });
       }
     }
 
@@ -177,35 +203,45 @@ module.exports = class PetController {
       name: user.name,
       image: user.image,
       phone: user.phone,
-    }
+    };
     await Pet.findByIdAndUpdate(id, pet);
-    res.status(200).json({ message: `Agendamento realizado com sucesso, entre em contato com ${pet.user.name} pelo telefone ${pet.user.phone}` });
+    res
+      .status(200)
+      .json({
+        message: `Agendamento realizado com sucesso, entre em contato com ${pet.user.name} pelo telefone ${pet.user.phone}`,
+      });
   }
-  static async concludeAdoption(req,res){
+  static async concludeAdoption(req, res) {
     const id = req.params.id;
 
     //check if Id is valid
     if (!ObjectId.isValid(id)) {
       return res.status(400).json({ error: "ID inválido" });
     }
-   //check if pet exists
+    //check if pet exists
     const pet = await Pet.findById(id);
     if (!pet) return res.status(404).json({ error: "Pet não encontrado" });
-   
+
     //check if the pet is from the user
     const token = getToken(req);
     const user = await getUserByToken(token);
-   //console.log(pet.user._id)
+    //console.log(pet.user._id)
     //console.log(user._id)
     if (!pet.user._id.equals(user._id)) {
-      return res.status(422).json({ error: "Você não possui permissão para concluir este atendimento" });
+      return res
+        .status(422)
+        .json({
+          error: "Você não possui permissão para concluir este atendimento",
+        });
     }
-    
+
     pet.available = false;
 
     await Pet.findByIdAndUpdate(id, pet);
-    res.status(200).json({ message: `Atendimento concluído com sucesso! O pet ${pet.name} foi adotado` });
-   
+    res
+      .status(200)
+      .json({
+        message: `Atendimento concluído com sucesso! O pet ${pet.name} foi adotado`,
+      });
   }
 };
- 
