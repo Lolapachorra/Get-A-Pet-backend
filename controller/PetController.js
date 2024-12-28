@@ -244,4 +244,19 @@ module.exports = class PetController {
         message: `Atendimento concluído com sucesso! O pet ${pet.name} foi adotado`,
       });
   }
+  static async searchPets(req,res){
+    const search = req.query.search; // Captura o termo de busca
+    if (!search) return res.status(400).json({ message: "Por favor, informe um termo de busca." });
+    try {
+      const pets = await Pet.find({
+        name: { $regex: search, $options: "i" }, // Faz uma busca insensível a maiúsculas e minúsculas
+      }).sort("-createdAt")
+
+      const petsQty = pets.length; // Conta os resultados encontrados
+
+      res.status(200).json({ pets, search, petsQty });
+    } catch (err) {
+      res.status(500).json({ message: "Erro ao buscar pets", error: err.message });
+    }
+  }
 };
